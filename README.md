@@ -2,6 +2,15 @@
 
 A Godot-based sidescrolling procedurally generated platformer
 
+![sample screenshot](screenshot.png)
+
+## Quick Start
+
+Install Godot 4.5 on macOS, clone this repo, and run:
+```
+/Applications/Godot.app/Contents/MacOS/Godot res://main.tcsn
+```
+
 ## Gameplay
 
 This is a 2D side-scroller with infinite-generating terrain with some exploration
