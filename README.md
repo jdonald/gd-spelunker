@@ -1,50 +1,56 @@
 # gd-spelunker
 
-A Godot-based sidescrolling procedurally generated platformer
+A Godot 4.2+ procedurally generated 2D side-scrolling platformer focused on cave exploration and survival.
 
 ![sample screenshot](screenshot.png)
 
-## Quick Start
+## Gameplay & Mechanics
 
-Install Godot 4.5 on macOS, clone this repo, and run:
-```
-/Applications/Godot.app/Contents/MacOS/Godot res://main.tcsn
-```
+### Exploration
+The world is infinitely generated in chunks using Perlin noise. Players earn points by reaching new "grid exploration levels" (every 100x100 tile area reached from the starting point). 
+- **Surface**: Colorful skies with grassy hills and parallax mountains.
+- **Underground**: Maze-like tunnel systems, stone layers, and dark cave backgrounds with stalactites/stalagmites.
+- **Water**: Pools found both on the surface and in deep caverns, featuring unique swimming physics.
 
-## Gameplay
+### Combat & Health
+- **Player Health**: Starts with 10 hearts. Damage causes a flinch and temporary invincibility.
+- **Enemies**: 
+  - **Walker**: Standard ground enemy that turns at edges.
+  - **Bouncer**: Bouncing movement pattern.
+  - **Thrower**: Launches projectiles in an arc.
+  - **Flyer**: Horizontal aerial movement with a wobble.
+- **Sword**: Directional swinging mechanics (Side, Up, Down). Killing enemies often drops heart pickups.
 
-This is a 2D side-scroller with infinite-generating terrain with some exploration
-vibe comparable to Terraria, except no crafting and not much variety of tools.
+### Controls
+| Key | Action |
+|-----|--------|
+| **A / D** | Move Left / Right |
+| **M** | Jump / Double-Jump / Swim Up |
+| **N** | Attack (Side) |
+| **W + N** | Attack Upward |
+| **S + N** | Attack Downward (Airborne) |
+| **R** | Restart Game (Debug) |
+| **F11** | Toggle Fullscreen |
 
-Controls are WASD mainly for the A, D keys for left and right movement, but N, M
-where M is the jump button and N is the attack (swing sword) button. Holding
-W and hitting N swings the sword up, holding S and hitting N swings the sword down.
+## Technical Implementation
 
-The user can double-jump, and also by pushing against a wall can slide down it,
-and while sliding down can jump off the wall similar to Mega Man X.
+### Project Structure
+- `project.godot`: Main configuration and input mappings.
+- `scenes/`: Game scenes including player, enemies, and UI.
+- `scripts/`: GDScript logic (Game Manager, Terrain, Player, AI).
+- `resources/`: Tileset and visual resources.
 
-Terrain is procedurallly generated and contains areas of blue skies, underground
-caves, and areas of water in both (in water, the user uses the M button to swim
-like Mario in Super Mario Bros, instead of being able to jump there).
-
-There are a variety of enemies including dumb walking enemies, bouncing enemies
-like paratroopas in Super Mario Bros, Hammer Bros-like enemis throwing balls
-in an arc pattern, and flying-horizontally enemies.
-
-The user starts with 10 hearts of life, and loses one + flinches whenever hit
-by enemies. Killing enemies with the sword often drops hearts that can be used
-to recover life.
-
-A score is shown, and the user earns points often for killing enemies. The main
-objective is exploration so always display the X and Y coordinate. Anytime the
-user reaches a further out 100x100 area (compared to the starting point at 0, 0)
-in terms of max manhattan distance, highlight the achievement "grid exploration level"
-increased, and award points.
+### Key Systems
+- **Procedural Generation (`terrain_generator.gd`)**: 
+  - Uses `FastNoiseLite` for heightmaps and ridged noise for maze-like tunnels.
+  - Implements a chunk-based loading system to handle infinite exploration efficiently.
+  - Dynamic tilemap generation with physics layers for terrain and water.
+- **Parallax Manager**: 
+  - Manages multiple layers for sky, mountains, and trees.
+  - Automatically toggles between overground and underground themes based on the player's depth.
+- **Player Controller**: 
+  - Features a state-machine approach for walking, wall-sliding, swimming, and attacking.
+  - SMB-style swimming physics where Jump (M) provides a stroke and W+M at the surface allows jumping out.
 
 ## Visuals
-
-The world should be colorful with daylight colors for the over-ground areas and
-more cave-themed colors for the underground areas. There should render some background
-elements of foothills and trees and scroll at a different speed to give a feeling
-of parallax like in Super Mario world. The underground areas contain more stalagmites
-and stalagtites as background areas.
+The game currently utilizes high-contrast placeholder geometry (ColorRects) and procedurally generated textures for tiles. This ensures a functional prototype that is ready for asset integration.
