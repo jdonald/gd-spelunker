@@ -4,6 +4,12 @@ A Godot 4.2+ procedurally generated 2D side-scrolling platformer focused on cave
 
 ![sample screenshot](screenshot.png)
 
+## Quick Start
+Install Godot 4.5 on macOS, clone this repo, and run:
+```
+/Applications/Godot.app/Contents/MacOS/Godot res://main.tcsn
+```
+
 ## Gameplay & Mechanics
 
 ### Exploration
