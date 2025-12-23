@@ -1,0 +1,19 @@
+[gd_scene load_steps=6 format=3 uid="uid://main123"]
+
+[ext_resource type="Script" path="res://scripts/game_manager.gd" id="1_game"]
+[ext_resource type="PackedScene" uid="uid://player123" path="res://scenes/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" uid="uid://terrain123" path="res://scenes/terrain_generator.tscn" id="3_terrain"]
+[ext_resource type="PackedScene" uid="uid://gameui123" path="res://scenes/ui/game_ui.tscn" id="4_ui"]
+[ext_resource type="PackedScene" uid="uid://parallax123" path="res://scenes/parallax_background.tscn" id="5_parallax"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_game")
+
+[node name="ParallaxBackground" parent="." instance=ExtResource("5_parallax")]
+
+[node name="TerrainGenerator" parent="." instance=ExtResource("3_terrain")]
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(0, -100)
+
+[node name="GameUI" parent="." instance=ExtResource("4_ui")]

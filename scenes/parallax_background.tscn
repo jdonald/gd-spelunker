@@ -1,0 +1,151 @@
+[gd_scene load_steps=2 format=3 uid="uid://parallax123"]
+
+[ext_resource type="Script" path="res://scripts/parallax_manager.gd" id="1_parallax"]
+
+[node name="ParallaxBackground" type="ParallaxBackground"]
+scroll_ignore_camera_zoom = true
+script = ExtResource("1_parallax")
+
+[node name="SkyLayer" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0, 0)
+
+[node name="Sky" type="ColorRect" parent="SkyLayer"]
+z_index = -100
+offset_left = -10000.0
+offset_top = -10000.0
+offset_right = 10000.0
+offset_bottom = 10000.0
+color = Color(0.4, 0.7, 0.95, 1)
+
+[node name="MountainsLayer" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.1, 0.05)
+motion_mirroring = Vector2(2048, 0)
+
+[node name="Mountains" type="Node2D" parent="MountainsLayer"]
+z_index = -90
+
+[node name="Mountain1" type="Polygon2D" parent="MountainsLayer/Mountains"]
+color = Color(0.35, 0.45, 0.55, 1)
+polygon = PackedVector2Array(-200, 400, 0, 100, 200, 400)
+position = Vector2(300, 0)
+
+[node name="Mountain2" type="Polygon2D" parent="MountainsLayer/Mountains"]
+color = Color(0.4, 0.5, 0.6, 1)
+polygon = PackedVector2Array(-250, 400, 50, 50, 300, 400)
+position = Vector2(700, 0)
+
+[node name="Mountain3" type="Polygon2D" parent="MountainsLayer/Mountains"]
+color = Color(0.35, 0.45, 0.55, 1)
+polygon = PackedVector2Array(-180, 400, 20, 120, 220, 400)
+position = Vector2(1200, 0)
+
+[node name="Mountain4" type="Polygon2D" parent="MountainsLayer/Mountains"]
+color = Color(0.4, 0.5, 0.6, 1)
+polygon = PackedVector2Array(-220, 400, 0, 80, 250, 400)
+position = Vector2(1700, 0)
+
+[node name="HillsLayer" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.3, 0.1)
+motion_mirroring = Vector2(1024, 0)
+
+[node name="Hills" type="Node2D" parent="HillsLayer"]
+z_index = -80
+
+[node name="Hill1" type="Polygon2D" parent="HillsLayer/Hills"]
+color = Color(0.3, 0.5, 0.3, 1)
+polygon = PackedVector2Array(-150, 400, 0, 250, 150, 400)
+position = Vector2(150, 0)
+
+[node name="Hill2" type="Polygon2D" parent="HillsLayer/Hills"]
+color = Color(0.35, 0.55, 0.35, 1)
+polygon = PackedVector2Array(-120, 400, 0, 280, 120, 400)
+position = Vector2(400, 0)
+
+[node name="Hill3" type="Polygon2D" parent="HillsLayer/Hills"]
+color = Color(0.3, 0.5, 0.3, 1)
+polygon = PackedVector2Array(-100, 400, 0, 300, 100, 400)
+position = Vector2(650, 0)
+
+[node name="Hill4" type="Polygon2D" parent="HillsLayer/Hills"]
+color = Color(0.35, 0.55, 0.35, 1)
+polygon = PackedVector2Array(-130, 400, 0, 270, 130, 400)
+position = Vector2(900, 0)
+
+[node name="TreesLayer" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.5, 0.15)
+motion_mirroring = Vector2(512, 0)
+
+[node name="Trees" type="Node2D" parent="TreesLayer"]
+z_index = -70
+
+[node name="Tree1" type="Polygon2D" parent="TreesLayer/Trees"]
+color = Color(0.2, 0.4, 0.2, 1)
+polygon = PackedVector2Array(-40, 400, 0, 320, 40, 400)
+position = Vector2(80, 0)
+
+[node name="Tree2" type="Polygon2D" parent="TreesLayer/Trees"]
+color = Color(0.25, 0.45, 0.25, 1)
+polygon = PackedVector2Array(-35, 400, 0, 330, 35, 400)
+position = Vector2(200, 0)
+
+[node name="Tree3" type="Polygon2D" parent="TreesLayer/Trees"]
+color = Color(0.2, 0.4, 0.2, 1)
+polygon = PackedVector2Array(-45, 400, 0, 310, 45, 400)
+position = Vector2(350, 0)
+
+[node name="Tree4" type="Polygon2D" parent="TreesLayer/Trees"]
+color = Color(0.25, 0.45, 0.25, 1)
+polygon = PackedVector2Array(-30, 400, 0, 340, 30, 400)
+position = Vector2(480, 0)
+
+[node name="CaveBackLayer" type="ParallaxLayer" parent="."]
+visible = false
+motion_scale = Vector2(0.2, 0.1)
+
+[node name="CaveBackground" type="ColorRect" parent="CaveBackLayer"]
+z_index = -100
+offset_left = -10000.0
+offset_top = -10000.0
+offset_right = 10000.0
+offset_bottom = 10000.0
+color = Color(0.15, 0.12, 0.18, 1)
+
+[node name="Stalactites" type="Node2D" parent="CaveBackLayer"]
+z_index = -90
+
+[node name="Stalactite1" type="Polygon2D" parent="CaveBackLayer/Stalactites"]
+color = Color(0.25, 0.22, 0.28, 1)
+polygon = PackedVector2Array(-20, -200, 0, 50, 20, -200)
+position = Vector2(100, 0)
+
+[node name="Stalactite2" type="Polygon2D" parent="CaveBackLayer/Stalactites"]
+color = Color(0.3, 0.27, 0.33, 1)
+polygon = PackedVector2Array(-15, -200, 0, 80, 15, -200)
+position = Vector2(300, 0)
+
+[node name="Stalactite3" type="Polygon2D" parent="CaveBackLayer/Stalactites"]
+color = Color(0.25, 0.22, 0.28, 1)
+polygon = PackedVector2Array(-25, -200, 0, 40, 25, -200)
+position = Vector2(550, 0)
+
+[node name="CaveMidLayer" type="ParallaxLayer" parent="."]
+visible = false
+motion_scale = Vector2(0.4, 0.15)
+
+[node name="Stalagmites" type="Node2D" parent="CaveMidLayer"]
+z_index = -80
+
+[node name="Stalagmite1" type="Polygon2D" parent="CaveMidLayer/Stalagmites"]
+color = Color(0.2, 0.17, 0.23, 1)
+polygon = PackedVector2Array(-25, 500, 0, 400, 25, 500)
+position = Vector2(150, 0)
+
+[node name="Stalagmite2" type="Polygon2D" parent="CaveMidLayer/Stalagmites"]
+color = Color(0.25, 0.22, 0.28, 1)
+polygon = PackedVector2Array(-20, 500, 0, 420, 20, 500)
+position = Vector2(400, 0)
+
+[node name="Stalagmite3" type="Polygon2D" parent="CaveMidLayer/Stalagmites"]
+color = Color(0.2, 0.17, 0.23, 1)
+polygon = PackedVector2Array(-30, 500, 0, 380, 30, 500)
+position = Vector2(700, 0)
