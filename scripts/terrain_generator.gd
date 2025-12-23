@@ -39,7 +39,99 @@ signal chunk_unloaded(chunk_pos: Vector2i)
 
 func _ready():
 	setup_noise()
+	setup_tilesets()
 	load_enemy_scenes()
+	# Generate initial chunks around origin immediately
+	generate_initial_chunks()
+
+func setup_tilesets():
+	# Create terrain tileset programmatically with proper collision
+	var terrain_tileset = TileSet.new()
+	terrain_tileset.tile_size = Vector2i(TILE_SIZE, TILE_SIZE)
+	terrain_tileset.add_physics_layer()
+	terrain_tileset.set_physics_layer_collision_layer(0, 2)  # Layer 2 = terrain
+	terrain_tileset.set_physics_layer_collision_mask(0, 1)   # Mask 1 = player
+
+	# Create atlas source with a generated texture
+	var img = Image.create(TILE_SIZE * 4, TILE_SIZE, false, Image.FORMAT_RGBA8)
+
+	# Tile 0: Grass (green)
+	for x in range(0, TILE_SIZE):
+		for y in range(TILE_SIZE):
+			img.set_pixel(x, y, Color(0.3, 0.7, 0.3))
+
+	# Tile 1: Dirt (brown)
+	for x in range(TILE_SIZE, TILE_SIZE * 2):
+		for y in range(TILE_SIZE):
+			img.set_pixel(x, y, Color(0.5, 0.35, 0.2))
+
+	# Tile 2: Stone (gray)
+	for x in range(TILE_SIZE * 2, TILE_SIZE * 3):
+		for y in range(TILE_SIZE):
+			img.set_pixel(x, y, Color(0.4, 0.4, 0.45))
+
+	# Tile 3: Cave background (dark)
+	for x in range(TILE_SIZE * 3, TILE_SIZE * 4):
+		for y in range(TILE_SIZE):
+			img.set_pixel(x, y, Color(0.25, 0.2, 0.3))
+
+	var texture = ImageTexture.create_from_image(img)
+
+	var source = TileSetAtlasSource.new()
+	source.texture = texture
+	source.texture_region_size = Vector2i(TILE_SIZE, TILE_SIZE)
+
+	# Create tiles with collision
+	for i in range(4):
+		source.create_tile(Vector2i(i, 0))
+		if i < 3:  # First 3 tiles have collision (not cave background)
+			var tile_data = source.get_tile_data(Vector2i(i, 0), 0)
+			# Add collision polygon (full tile)
+			var polygon = PackedVector2Array([
+				Vector2(-TILE_SIZE/2, -TILE_SIZE/2),
+				Vector2(TILE_SIZE/2, -TILE_SIZE/2),
+				Vector2(TILE_SIZE/2, TILE_SIZE/2),
+				Vector2(-TILE_SIZE/2, TILE_SIZE/2)
+			])
+			tile_data.add_collision_polygon(0)
+			tile_data.set_collision_polygon_points(0, 0, polygon)
+
+	terrain_tileset.add_source(source, 0)
+	terrain_tilemap.tile_set = terrain_tileset
+
+	# Create water tileset
+	var water_tileset = TileSet.new()
+	water_tileset.tile_size = Vector2i(TILE_SIZE, TILE_SIZE)
+	water_tileset.add_physics_layer()
+	water_tileset.set_physics_layer_collision_layer(0, 64)  # Layer 7 = water
+	water_tileset.set_physics_layer_collision_mask(0, 0)
+
+	var water_img = Image.create(TILE_SIZE, TILE_SIZE, false, Image.FORMAT_RGBA8)
+	for x in range(TILE_SIZE):
+		for y in range(TILE_SIZE):
+			water_img.set_pixel(x, y, Color(0.2, 0.5, 0.9, 0.7))
+
+	var water_texture = ImageTexture.create_from_image(water_img)
+	var water_source = TileSetAtlasSource.new()
+	water_source.texture = water_texture
+	water_source.texture_region_size = Vector2i(TILE_SIZE, TILE_SIZE)
+	water_source.create_tile(Vector2i(0, 0))
+
+	water_tileset.add_source(water_source, 0)
+	water_tilemap.tile_set = water_tileset
+
+	# Create background tileset (no collision)
+	var bg_tileset = TileSet.new()
+	bg_tileset.tile_size = Vector2i(TILE_SIZE, TILE_SIZE)
+
+	var bg_source = TileSetAtlasSource.new()
+	bg_source.texture = texture
+	bg_source.texture_region_size = Vector2i(TILE_SIZE, TILE_SIZE)
+	for i in range(4):
+		bg_source.create_tile(Vector2i(i, 0))
+
+	bg_tileset.add_source(bg_source, 0)
+	background_tilemap.tile_set = bg_tileset
 
 func setup_noise():
 	# Main terrain noise for surface variation
@@ -70,6 +162,18 @@ func load_enemy_scenes():
 
 func set_player(p: Node2D):
 	player = p
+	# Generate chunks around player immediately when set
+	if player:
+		update_chunks()
+
+func generate_initial_chunks():
+	# Generate chunks around the spawn point (0, -100) before player exists
+	var spawn_chunk = world_to_chunk(Vector2(0, -100))
+	for x in range(-RENDER_DISTANCE, RENDER_DISTANCE + 1):
+		for y in range(-RENDER_DISTANCE, RENDER_DISTANCE + 1):
+			var chunk_pos = spawn_chunk + Vector2i(x, y)
+			if not loaded_chunks.has(chunk_pos):
+				load_chunk(chunk_pos)
 
 func _process(_delta):
 	if player:
