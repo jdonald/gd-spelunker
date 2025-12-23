@@ -40,6 +40,7 @@ var invincibility_timer: float = 0.0
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var sword_hitbox: Area2D = $SwordHitbox
 @onready var sword_collision: CollisionShape2D = $SwordHitbox/CollisionShape2D
+@onready var sword_visual: ColorRect = $SwordHitbox/SwordVisual
 @onready var hurtbox: Area2D = $Hurtbox
 @onready var wall_check_left: RayCast2D = $WallCheckLeft
 @onready var wall_check_right: RayCast2D = $WallCheckRight
@@ -49,6 +50,8 @@ var invincibility_timer: float = 0.0
 
 func _ready():
 	sword_collision.disabled = true
+	if sword_visual:
+		sword_visual.visible = false
 	emit_signal("health_changed", current_health, max_health)
 	emit_signal("score_changed", score)
 	check_exploration_level()
@@ -137,9 +140,10 @@ func handle_normal_movement(delta):
 		if direction:
 			velocity.x = direction * SPEED
 		else:
-			velocity.x = move_toward(velocity.x, 0, SPEED * 0.2)
+			# Smoother deceleration using delta to avoid rubber-banding/snapping
+			velocity.x = move_toward(velocity.x, 0, SPEED * 8.0 * delta)
 	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED * 0.05)
+		velocity.x = move_toward(velocity.x, 0, SPEED * 2.0 * delta)
 
 	# Handle attack
 	if Input.is_action_just_pressed("attack") and not is_attacking:
@@ -164,7 +168,7 @@ func handle_swimming(delta):
 		if direction:
 			velocity.x = direction * SWIM_SPEED
 		else:
-			velocity.x = move_toward(velocity.x, 0, SWIM_SPEED * 0.1)
+			velocity.x = move_toward(velocity.x, 0, SWIM_SPEED * 5.0 * delta)
 
 	# Can still attack underwater
 	if Input.is_action_just_pressed("attack") and not is_attacking:
@@ -183,6 +187,8 @@ func perform_attack():
 
 	update_sword_position()
 	sword_collision.disabled = false
+	if sword_visual:
+		sword_visual.visible = true
 	attack_timer.start(0.3)
 
 	# Play attack animation
@@ -200,10 +206,10 @@ func update_sword_position():
 	match attack_direction:
 		"up":
 			sword_hitbox.position = Vector2(0, -30)
-			sword_hitbox.rotation_degrees = 0
+			sword_hitbox.rotation_degrees = -90
 		"down":
 			sword_hitbox.position = Vector2(0, 30)
-			sword_hitbox.rotation_degrees = 0
+			sword_hitbox.rotation_degrees = 90
 		"side":
 			if facing_right:
 				sword_hitbox.position = Vector2(25, 0)
@@ -214,6 +220,8 @@ func update_sword_position():
 func _on_attack_timer_timeout():
 	is_attacking = false
 	sword_collision.disabled = true
+	if sword_visual:
+		sword_visual.visible = false
 
 func update_animation():
 	if is_attacking:

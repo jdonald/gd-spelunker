@@ -2,7 +2,7 @@ extends Area2D
 class_name Projectile
 
 var velocity: Vector2 = Vector2.ZERO
-var gravity: float = 400.0
+var projectile_gravity: float = 400.0
 var lifetime: float = 5.0
 
 func _ready():
@@ -12,7 +12,7 @@ func _ready():
 
 func _physics_process(delta):
 	# Apply gravity for arc motion
-	velocity.y += gravity * delta
+	velocity.y += projectile_gravity * delta
 
 	# Move
 	position += velocity * delta

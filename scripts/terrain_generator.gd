@@ -81,6 +81,9 @@ func setup_tilesets():
 	source.texture = texture
 	source.texture_region_size = Vector2i(TILE_SIZE, TILE_SIZE)
 
+	# Add source to tileset BEFORE creating tiles/collision so layers are recognized
+	terrain_tileset.add_source(source, 0)
+
 	# Create tiles with collision
 	for i in range(4):
 		source.create_tile(Vector2i(i, 0))
@@ -96,7 +99,6 @@ func setup_tilesets():
 			tile_data.add_collision_polygon(0)
 			tile_data.set_collision_polygon_points(0, 0, polygon)
 
-	terrain_tileset.add_source(source, 0)
 	terrain_tilemap.tile_set = terrain_tileset
 
 	# Create water tileset
@@ -138,8 +140,8 @@ func setup_noise():
 	noise = FastNoiseLite.new()
 	noise.seed = randi()
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
-	noise.frequency = 0.02
-	noise.fractal_octaves = 4
+	noise.frequency = 0.05
+	noise.fractal_octaves = 5
 
 	# Cave noise for underground caverns
 	cave_noise = FastNoiseLite.new()
@@ -252,7 +254,7 @@ func generate_tile(world_x: int, world_y: int):
 	var tile_pos = Vector2i(world_x, world_y)
 
 	# Get terrain height at this x position
-	var height_variation = noise.get_noise_1d(world_x * 0.1) * 8
+	var height_variation = noise.get_noise_1d(world_x * 0.1) * 20
 	var surface_y = int(surface_height_base + height_variation)
 
 	# Get cave noise value
@@ -260,6 +262,9 @@ func generate_tile(world_x: int, world_y: int):
 
 	# Get water noise value
 	var water_value = water_noise.get_noise_2d(world_x, world_y)
+
+	# Check safe zone
+	var is_safe_zone = abs(world_x) < 5
 
 	# Tile atlas coordinates:
 	# (0,0) = grass (green), (1,0) = dirt (brown), (2,0) = stone (gray), (3,0) = cave bg
@@ -275,15 +280,19 @@ func generate_tile(world_x: int, world_y: int):
 		# Near surface - could have grass or trees
 		if world_y == surface_y - 1 or world_y == surface_y - 2:
 			# Check for water depression
-			if water_value > 0.5:
+			if not is_safe_zone and water_value > 0.5:
 				water_tilemap.set_cell(tile_pos, 0, Vector2i(0, 0))
 		pass
 	elif world_y == surface_y:
 		# Surface level - grass (green tile at 0,0)
-		terrain_tilemap.set_cell(tile_pos, 0, Vector2i(0, 0))
+		if not is_safe_zone and cave_value > 0.4:
+			# Cave opening at surface
+			background_tilemap.set_cell(tile_pos, 0, Vector2i(3, 0))
+		else:
+			terrain_tilemap.set_cell(tile_pos, 0, Vector2i(0, 0))
 	elif world_y < surface_y + 4:
 		# Dirt layer
-		if cave_value > 0.4:
+		if not is_safe_zone and cave_value > 0.4:
 			# Small cave opening near surface
 			if water_value > 0.6:
 				water_tilemap.set_cell(tile_pos, 0, Vector2i(0, 0))
@@ -309,7 +318,7 @@ func generate_tile(world_x: int, world_y: int):
 
 func spawn_enemies_in_chunk(chunk_pos: Vector2i):
 	# Random chance to spawn enemies in each chunk
-	var spawn_count = randi() % 3  # 0-2 enemies per chunk
+	var spawn_count = 2 + randi() % 4  # 2-5 enemies per chunk
 
 	for i in range(spawn_count):
 		var enemy_type = ["walker", "bouncer", "thrower", "flyer"][randi() % 4]
@@ -348,7 +357,7 @@ func spawn_enemy(enemy_type: String, position: Vector2, chunk_pos: Vector2i):
 	chunk_enemies[chunk_pos].append(enemy)
 
 func get_surface_height_at(world_x: float) -> float:
-	var height_variation = noise.get_noise_1d(world_x / TILE_SIZE * 0.1) * 8
+	var height_variation = noise.get_noise_1d(world_x / TILE_SIZE * 0.1) * 20
 	return (surface_height_base + height_variation) * TILE_SIZE
 
 func is_underground(world_pos: Vector2) -> bool:

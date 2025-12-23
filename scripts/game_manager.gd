@@ -28,7 +28,9 @@ func setup_game():
 	player.player_died.connect(_on_player_died)
 
 	# Position player at spawn point (slightly above ground)
-	player.global_position = Vector2(0, -100)
+	var spawn_x = 0
+	var surface_y = terrain_generator.get_surface_height_at(spawn_x)
+	player.global_position = Vector2(spawn_x, surface_y - 64)
 
 func _on_player_died():
 	game_ui.show_game_over()
