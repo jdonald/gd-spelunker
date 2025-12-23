@@ -45,6 +45,7 @@ var invincibility_timer: float = 0.0
 @onready var wall_check_left: RayCast2D = $WallCheckLeft
 @onready var wall_check_right: RayCast2D = $WallCheckRight
 @onready var water_check: Area2D = $WaterCheck
+@onready var surface_check: RayCast2D = $SurfaceCheck
 @onready var attack_timer: Timer = $AttackTimer
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 
@@ -155,12 +156,19 @@ func handle_swimming(delta):
 	can_double_jump = true
 
 	# Slower gravity in water
-	velocity.y += gravity * delta * 0.3
-	velocity.y = min(velocity.y, SWIM_SPEED)
+	velocity.y = move_toward(velocity.y, 50.0, gravity * delta * 0.1)
 
-	# Swim up with jump button (like Mario)
+	# Swim mechanics
 	if Input.is_action_just_pressed("jump"):
-		velocity.y = SWIM_JUMP_VELOCITY
+		# Check if at surface (head is out of water, body is in)
+		var at_surface = not surface_check.is_colliding()
+		
+		if at_surface and Input.is_action_pressed("move_up"):
+			# Big jump out of water (Super Mario Bros 3 style)
+			velocity.y = JUMP_VELOCITY
+		else:
+			# Normal swim stroke
+			velocity.y = SWIM_JUMP_VELOCITY
 
 	# Horizontal movement (slower in water)
 	var direction = Input.get_axis("move_left", "move_right")

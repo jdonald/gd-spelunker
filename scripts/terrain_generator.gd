@@ -147,7 +147,7 @@ func setup_noise():
 	cave_noise = FastNoiseLite.new()
 	cave_noise.seed = randi()
 	cave_noise.noise_type = FastNoiseLite.TYPE_PERLIN
-	cave_noise.frequency = 0.05
+	cave_noise.frequency = 0.02
 	cave_noise.fractal_octaves = 3
 
 	# Water noise for water pools
@@ -285,14 +285,21 @@ func generate_tile(world_x: int, world_y: int):
 		pass
 	elif world_y == surface_y:
 		# Surface level - grass (green tile at 0,0)
-		if not is_safe_zone and cave_value > 0.4:
-			# Cave opening at surface
-			background_tilemap.set_cell(tile_pos, 0, Vector2i(3, 0))
+		if not is_safe_zone:
+			if cave_value > 0.35: # Lower threshold for surface caves
+				# Cave opening at surface
+				background_tilemap.set_cell(tile_pos, 0, Vector2i(3, 0))
+			elif water_value > 0.5: # Water pool surface
+				# Don't place grass if it's a water pool
+				pass
+			else:
+				terrain_tilemap.set_cell(tile_pos, 0, Vector2i(0, 0))
 		else:
+			# Safe zone - always solid
 			terrain_tilemap.set_cell(tile_pos, 0, Vector2i(0, 0))
 	elif world_y < surface_y + 4:
 		# Dirt layer
-		if not is_safe_zone and cave_value > 0.4:
+		if not is_safe_zone and cave_value > 0.35:
 			# Small cave opening near surface
 			if water_value > 0.6:
 				water_tilemap.set_cell(tile_pos, 0, Vector2i(0, 0))
@@ -302,7 +309,7 @@ func generate_tile(world_x: int, world_y: int):
 	else:
 		# Underground - stone with caves
 		var depth = world_y - surface_y
-		var cave_threshold = 0.3 - (depth * 0.002)  # Caves more common deeper
+		var cave_threshold = 0.25 - (depth * 0.002)  # Lower base threshold for larger caves
 
 		if cave_value > cave_threshold:
 			# Cave - empty space
