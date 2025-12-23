@@ -147,7 +147,7 @@ func setup_noise():
 	cave_noise = FastNoiseLite.new()
 	cave_noise.seed = randi()
 	cave_noise.noise_type = FastNoiseLite.TYPE_PERLIN
-	cave_noise.frequency = 0.02
+	cave_noise.frequency = 0.03 # Slightly higher for more features
 	cave_noise.fractal_octaves = 3
 
 	# Water noise for water pools
@@ -257,8 +257,8 @@ func generate_tile(world_x: int, world_y: int):
 	var height_variation = noise.get_noise_1d(world_x * 0.1) * 20
 	var surface_y = int(surface_height_base + height_variation)
 
-	# Get cave noise value
-	var cave_value = cave_noise.get_noise_2d(world_x, world_y)
+	# Get cave noise value - Squash Y to reduce vertical shafts
+	var cave_value = cave_noise.get_noise_2d(world_x, world_y * 1.5)
 
 	# Get water noise value
 	var water_value = water_noise.get_noise_2d(world_x, world_y)
@@ -286,7 +286,8 @@ func generate_tile(world_x: int, world_y: int):
 	elif world_y == surface_y:
 		# Surface level - grass (green tile at 0,0)
 		if not is_safe_zone:
-			if cave_value > 0.35: # Lower threshold for surface caves
+			# Use abs() for ridged noise (tunnels)
+			if abs(cave_value) < 0.2:
 				# Cave opening at surface
 				background_tilemap.set_cell(tile_pos, 0, Vector2i(3, 0))
 			elif water_value > 0.5: # Water pool surface
@@ -299,7 +300,7 @@ func generate_tile(world_x: int, world_y: int):
 			terrain_tilemap.set_cell(tile_pos, 0, Vector2i(0, 0))
 	elif world_y < surface_y + 4:
 		# Dirt layer
-		if not is_safe_zone and cave_value > 0.35:
+		if not is_safe_zone and abs(cave_value) < 0.2:
 			# Small cave opening near surface
 			if water_value > 0.6:
 				water_tilemap.set_cell(tile_pos, 0, Vector2i(0, 0))
@@ -308,10 +309,10 @@ func generate_tile(world_x: int, world_y: int):
 			terrain_tilemap.set_cell(tile_pos, 0, Vector2i(1, 0))
 	else:
 		# Underground - stone with caves
-		var depth = world_y - surface_y
-		var cave_threshold = 0.25 - (depth * 0.002)  # Lower base threshold for larger caves
+		# Ridged noise logic: cave if value is close to 0
+		var tunnel_width = 0.25 # Base width
 
-		if cave_value > cave_threshold:
+		if abs(cave_value) < tunnel_width:
 			# Cave - empty space
 			# Add background decoration (cave bg at 3,0)
 			background_tilemap.set_cell(tile_pos, 0, Vector2i(3, 0))
